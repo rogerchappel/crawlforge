@@ -1,0 +1,14 @@
+{
+  "name": "crawlforge",
+  "version": 1,
+  "defaultCommand": "crawlforge inspect fixtures/sample --output out/crawlforge --format both",
+  "network": "disabled-by-default",
+  "inputs": ["local fixture JSON", "optional robots.txt"],
+  "outputs": ["markdown", "json", "manifest"],
+  "checks": ["npm test", "npm run check", "npm run build", "npm run smoke", "bash scripts/validate.sh"],
+  "safety": {
+    "hiddenNetwork": false,
+    "telemetry": false,
+    "credentials": false
+  }
+}
