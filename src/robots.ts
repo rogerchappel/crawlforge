@@ -27,7 +27,14 @@ export function parseRobotsConfig(text: string, fallback: RobotsPolicy = default
 
 export function isAllowed(url: string, policy: RobotsPolicy): boolean {
   const path = new URL(url).pathname;
-  const blocked = policy.disallow.some((rule) => rule !== "" && path.startsWith(rule));
-  if (!blocked) return true;
-  return policy.allow.some((rule) => rule !== "" && path.startsWith(rule));
+  const longestDisallow = longestMatchingRule(path, policy.disallow);
+  const longestAllow = longestMatchingRule(path, policy.allow);
+  if (!longestDisallow) return true;
+  return Boolean(longestAllow && longestAllow.length > longestDisallow.length);
+}
+
+function longestMatchingRule(path: string, rules: string[]): string | undefined {
+  return rules
+    .filter((rule) => rule !== "" && path.startsWith(rule))
+    .sort((a, b) => b.length - a.length)[0];
 }
