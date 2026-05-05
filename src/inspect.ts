@@ -18,8 +18,7 @@ export async function inspectFixtures(options: InspectOptions) {
       queue.skipped.push({ url: page.url, reason: "robots-disallow" });
       continue;
     }
-    const queued = queue.enqueue(page.url, 0);
-    if (!queued) continue;
+    queue.enqueue(page.url, 0);
     if (!options.dryRun) written.push(await writePage(options.output, page, options.format));
 
     if (options.maxDepth > 0) {
