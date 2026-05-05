@@ -1,21 +1,10 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## 0.1.0 - 2026-05-05
 
-This project follows the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
-format and uses semantic versioning when versioned releases are published.
-
-## [Unreleased]
-
-### Added
-
-- Initial project setup.
-
-## Release Links
-
-- Unreleased:
-  `https://github.com/rogerchappel/crawlforge/compare/...HEAD`
-- Latest release:
-  `https://github.com/rogerchappel/crawlforge/releases/latest`
-
-Replace placeholder links once the first release tag exists.
+- Scaffolded with StackForge `oss-cli`.
+- Added deterministic URL queue and dedupe primitives.
+- Added fixture robots/politeness parsing.
+- Added local fixture inspection with Markdown and JSON writers.
+- Added replayable crawl manifests.
+- Added fixture-backed unit tests and CLI smoke coverage.
