@@ -1,0 +1,6 @@
+{
+  "url": "https://example.test/",
+  "title": "Example Home",
+  "html": "<main><h1>Example Home</h1><p>Local-first crawlforge fixture.</p><a href=\"/docs\">Docs</a><a href=\"/private\">Private</a></main>",
+  "discoveredAt": "2026-05-05T08:30:00.000Z"
+}

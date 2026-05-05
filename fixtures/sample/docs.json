@@ -1,0 +1,6 @@
+{
+  "url": "https://example.test/docs",
+  "title": "Example Docs",
+  "text": "Docs explain deterministic queues, polite fixture rules, and replayable manifests.",
+  "links": ["/", "/docs?ref=agent#section"]
+}
