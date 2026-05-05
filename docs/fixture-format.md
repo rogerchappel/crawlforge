@@ -1,0 +1,22 @@
+# Fixture Format
+
+crawlforge fixtures are plain JSON files in a directory. Each page fixture needs a `url` and may include `title`, `html`, `text`, `links`, and `discoveredAt`.
+
+```json
+{
+  "url": "https://example.test/docs",
+  "title": "Docs",
+  "text": "A deterministic page body.",
+  "links": ["/", "/guide"]
+}
+```
+
+When `links` are omitted, crawlforge extracts `href` values from `html`. Relative links are resolved against the page URL and normalized before queueing.
+
+Add `robots.txt` to model politeness:
+
+```txt
+User-agent: crawlforge-fixture-bot
+Disallow: /private
+Crawl-delay-ms: 250
+```
