@@ -1,0 +1,4 @@
+User-agent: crawlforge-fixture-bot
+Allow: /
+Disallow: /private
+Crawl-delay-ms: 250
