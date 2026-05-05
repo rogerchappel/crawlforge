@@ -1,0 +1,5 @@
+{
+  "url": "https://example.test/docs/?b=2&a=1#top",
+  "title": "Duplicate URL Shape",
+  "text": "This fixture exists to exercise stable URL normalization."
+}

@@ -1,0 +1,3 @@
+User-agent: crawlforge-fixture-bot
+Disallow: /blocked
+Crawl-delay: 0.5
