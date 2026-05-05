@@ -26,6 +26,11 @@ export async function loadFixtureBundle(inputDir: string): Promise<FixtureBundle
     pages.push(parsed);
   }
 
-  pages.sort((a, b) => a.url.localeCompare(b.url));
+  pages.sort((a, b) => scoreUrl(a.url) - scoreUrl(b.url) || a.url.localeCompare(b.url));
   return { pages, policy };
+}
+
+function scoreUrl(url: string): number {
+  const path = new URL(url).pathname;
+  return path === "/" ? 0 : path.split("/").filter(Boolean).length + 1;
 }
