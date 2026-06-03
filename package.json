@@ -41,5 +41,13 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "typescript": "^5.9.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/crawlforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/crawlforge/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/crawlforge#readme"
 }
