@@ -29,7 +29,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test tests/*.test.js",
     "smoke": "npm run build && bash scripts/smoke.sh",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "npm run build && node scripts/package-smoke.mjs",
     "release:check": "npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
