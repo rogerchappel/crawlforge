@@ -71,10 +71,14 @@ crawlforge inspect <fixture-dir> [options]
 Options:
   --output <dir>       Output directory
   --format <mode>      markdown, json, or both
-  --max-depth <n>      Queue same-origin fixture links
+  --max-depth <n>      Follow fixture links through n levels (non-negative integer)
   --manifest <file>    Manifest filename
-  --dry-run            Build queue only, no output files
+  --dry-run            Build the queue in memory without creating the output path
 ```
+
+The inspector starts from fixture pages that are not linked by another fixture page,
+then follows same-origin links through the requested depth. A value of `0` includes
+only those roots; linked fixture pages are expanded at depths `1`, `2`, and so on.
 
 ## Attribution
 

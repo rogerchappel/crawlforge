@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Validate `--max-depth` and honor it while recursively traversing fixture links.
+- Keep dry runs entirely in memory without creating an output directory.
+
 ## 0.1.0 - 2026-05-05
 
 - Scaffolded with StackForge `oss-cli`.
