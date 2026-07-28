@@ -23,7 +23,13 @@ export function parseArgs(argv: string[]): { command: "help" } | { command: "ins
     if (flag === "--output" || flag === "-o") options.output = value;
     else if (flag === "--format") options.format = value as OutputFormat | "both";
     else if (flag === "--user-agent") options.userAgent = value;
-    else if (flag === "--max-depth") options.maxDepth = Number.parseInt(value, 10);
+    else if (flag === "--max-depth") {
+      const maxDepth = Number(value);
+      if (!Number.isSafeInteger(maxDepth) || maxDepth < 0) {
+        throw new Error("--max-depth must be a non-negative integer");
+      }
+      options.maxDepth = maxDepth;
+    }
     else if (flag === "--manifest") options.manifestName = value;
     else throw new Error(`Unknown option: ${flag}`);
     index += 1;
