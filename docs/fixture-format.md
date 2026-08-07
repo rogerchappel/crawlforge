@@ -20,3 +20,5 @@ User-agent: crawlforge-fixture-bot
 Disallow: /private
 Crawl-delay-ms: 250
 ```
+
+For a requested path, crawlforge applies the longest matching `Allow` or `Disallow` rule. When the longest matching rules are equally specific, `Allow` takes precedence.
