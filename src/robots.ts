@@ -30,7 +30,7 @@ export function isAllowed(url: string, policy: RobotsPolicy): boolean {
   const longestDisallow = longestMatchingRule(path, policy.disallow);
   const longestAllow = longestMatchingRule(path, policy.allow);
   if (!longestDisallow) return true;
-  return Boolean(longestAllow && longestAllow.length > longestDisallow.length);
+  return Boolean(longestAllow && longestAllow.length >= longestDisallow.length);
 }
 
 function longestMatchingRule(path: string, rules: string[]): string | undefined {
