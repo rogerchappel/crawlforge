@@ -22,3 +22,5 @@ Crawl-delay-ms: 250
 ```
 
 For a requested path, crawlforge applies the longest matching `Allow` or `Disallow` rule. When the longest matching rules are equally specific, `Allow` takes precedence.
+
+`Crawl-delay` is expressed in seconds and `Crawl-delay-ms` in milliseconds. Both accept finite, non-negative decimal values. Invalid, non-finite, or negative delay directives are ignored, leaving the previous fallback or valid delay unchanged.
