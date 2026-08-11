@@ -9,6 +9,7 @@ export const defaultPolicy: RobotsPolicy = {
 
 export function parseRobotsConfig(text: string, fallback: RobotsPolicy = defaultPolicy): RobotsPolicy {
   const policy: RobotsPolicy = { ...fallback, allow: [...fallback.allow], disallow: [...fallback.disallow] };
+  let hasExplicitPathRules = false;
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.replace(/#.*/, "").trim();
     if (!line) continue;
@@ -17,12 +18,26 @@ export function parseRobotsConfig(text: string, fallback: RobotsPolicy = default
     const value = rest.join(":").trim();
     if (!key || !value) continue;
     if (key === "user-agent") policy.userAgent = value;
-    if (key === "allow") policy.allow.push(value);
-    if (key === "disallow") policy.disallow.push(value);
-    if (key === "crawl-delay-ms") policy.crawlDelayMs = Number.parseInt(value, 10);
-    if (key === "crawl-delay") policy.crawlDelayMs = Number.parseFloat(value) * 1000;
+    if (key === "allow" || key === "disallow") {
+      if (!hasExplicitPathRules) {
+        policy.allow = [];
+        policy.disallow = [];
+        hasExplicitPathRules = true;
+      }
+      policy[key].push(value);
+    }
+    if (key === "crawl-delay-ms") setCrawlDelay(policy, value, 1);
+    if (key === "crawl-delay") setCrawlDelay(policy, value, 1000);
   }
   return policy;
+}
+
+function setCrawlDelay(policy: RobotsPolicy, value: string, multiplier: number): void {
+  const parsed = Number(value);
+  const milliseconds = parsed * multiplier;
+  if (Number.isFinite(milliseconds) && milliseconds >= 0) {
+    policy.crawlDelayMs = milliseconds;
+  }
 }
 
 export function isAllowed(url: string, policy: RobotsPolicy): boolean {
