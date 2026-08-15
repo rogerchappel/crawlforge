@@ -106,7 +106,7 @@ npm run package:smoke
 npm run release:check
 ```
 
-Use `npm pack --dry-run` to confirm the published package contains the CLI/runtime files plus README, license, security, support, and release notes.
+`npm run package:smoke` packs the real artifact, installs it in a temporary project, and executes its CLI. Tagged releases require an npm trusted publisher configured for this repository and workflow environment; no long-lived npm token is used. The workflow verifies that the tag, package, and lockfile versions agree, refuses an existing registry version, publishes with provenance, verifies it with `npm view crawlforge@<version> version`, and only then creates the GitHub release with the same tarball attached.
 
 ## License
 MIT © Roger Chappel

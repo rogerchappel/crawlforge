@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Publish tagged tarballs through npm trusted publishing with provenance before creating the GitHub release.
 - Validate `--max-depth` and honor it while recursively traversing fixture links.
 - Keep dry runs entirely in memory without creating an output directory.
 
