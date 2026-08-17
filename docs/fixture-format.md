@@ -2,6 +2,12 @@
 
 crawlforge fixtures are plain JSON files in a directory. Each page fixture needs a `url` and may include `title`, `html`, `text`, `links`, and `discoveredAt`.
 
+Each fixture must be a JSON object. `url` must be a non-empty absolute URL;
+`title`, `html`, `text`, and `discoveredAt`, when supplied, must be strings;
+and `links`, when supplied, must be an array containing only strings. Invalid
+fixtures fail before pages are queued or output is written, with an error that
+identifies the fixture filename and invalid field.
+
 ```json
 {
   "url": "https://example.test/docs",
