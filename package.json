@@ -1,6 +1,6 @@
 {
   "name": "crawlforge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local-first crawl planning toolkit with deterministic fixtures, polite queues, and replayable outputs.",
   "type": "module",
   "bin": {
