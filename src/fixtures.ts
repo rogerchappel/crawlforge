@@ -21,13 +21,45 @@ export async function loadFixtureBundle(inputDir: string): Promise<FixtureBundle
       continue;
     }
     if (!entry.name.endsWith(".json")) continue;
-    const parsed = JSON.parse(await readFile(path, "utf8")) as CrawlInput;
-    if (!parsed.url) throw new Error(`Fixture ${entry.name} is missing url`);
-    pages.push(parsed);
+    const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
+    pages.push(validateFixture(entry.name, parsed));
   }
 
   pages.sort((a, b) => scoreUrl(a.url) - scoreUrl(b.url) || a.url.localeCompare(b.url));
   return { pages, policy };
+}
+
+function validateFixture(filename: string, value: unknown): CrawlInput {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`Fixture ${filename} must be a JSON object`);
+  }
+
+  const fixture = value as Record<string, unknown>;
+  if (typeof fixture.url !== "string" || fixture.url.length === 0) {
+    throw new Error(`Fixture ${filename} field url must be a non-empty absolute URL`);
+  }
+  try {
+    new URL(fixture.url);
+  } catch {
+    throw new Error(`Fixture ${filename} field url must be a non-empty absolute URL`);
+  }
+
+  for (const field of ["title", "html", "text", "discoveredAt"] as const) {
+    if (fixture[field] !== undefined && typeof fixture[field] !== "string") {
+      throw new Error(`Fixture ${filename} field ${field} must be a string`);
+    }
+  }
+  if (fixture.links !== undefined) {
+    if (!Array.isArray(fixture.links)) {
+      throw new Error(`Fixture ${filename} field links must be an array of strings`);
+    }
+    const invalidIndex = fixture.links.findIndex((link) => typeof link !== "string");
+    if (invalidIndex !== -1) {
+      throw new Error(`Fixture ${filename} field links[${invalidIndex}] must be a string`);
+    }
+  }
+
+  return fixture as unknown as CrawlInput;
 }
 
 function scoreUrl(url: string): number {
