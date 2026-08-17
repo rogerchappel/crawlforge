@@ -1,10 +1,11 @@
 # Release Notes
 
-## Next
+## 0.2.0
 
 ### Summary
 
-- Prepare Crawlforge for the next public release.
+- Publish the first npm registry package with trusted publishing and provenance.
+- Add bounded fixture traversal, write-free dry runs, stricter fixture validation, and standards-aligned robots rule precedence.
 
 ### Verification
 
@@ -13,8 +14,8 @@
 
 ### Upgrade Notes
 
-- No breaking changes are planned for this readiness update.
+- This is the first registry release. Existing source-checkout usage remains compatible.
 
 ### Maintainer Notes
 
-- Confirm the dry-run package includes README, license, security, support, and runtime assets before publishing.
+- Before tagging, confirm `gh release view v0.2.0` reports that the GitHub release does not exist and `npm view crawlforge@0.2.0 version` reports that the package version is unpublished.

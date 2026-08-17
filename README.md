@@ -8,7 +8,9 @@ It is intentionally small, polite, and a little forge-like: feed it known fixtur
 
 Crawler tooling often jumps straight to live fetching. crawlforge starts one layer earlier: planning and replay. That makes it useful for tests, agent workflows, docs ingestion prototypes, and safety reviews.
 
-## Install
+## Source checkout
+
+`crawlforge` is not currently available from the npm registry. Clone this repository, then install and build it locally:
 
 ```bash
 npm install
@@ -29,9 +31,10 @@ node dist/cli.js inspect fixtures/sample --output out/sample --format both
 cat out/sample/manifest.json
 ```
 
-Or after package installation:
+After a future registry release, a global installation will provide the `crawlforge` command:
 
 ```bash
+npm install --global crawlforge
 crawlforge inspect ./fixtures/sample --output ./out/sample --format markdown
 ```
 
@@ -106,7 +109,7 @@ npm run package:smoke
 npm run release:check
 ```
 
-`npm run package:smoke` packs the real artifact, installs it in a temporary project, and executes its CLI. Tagged releases require an npm trusted publisher configured for this repository and workflow environment; no long-lived npm token is used. The workflow verifies that the tag, package, and lockfile versions agree, refuses an existing registry version, publishes with provenance, verifies it with `npm view crawlforge@<version> version`, and only then creates the GitHub release with the same tarball attached.
+`npm run package:smoke` packs the real artifact, installs it in a temporary project, and executes its CLI. Tagged releases require an npm trusted publisher configured for this repository and workflow environment; no long-lived npm token is used. Before tagging, add the previous version to `release-state.json`; `npm run release:metadata` rejects a package version already recorded there. The workflow verifies that the tag, package, and lockfile versions agree, refuses an existing registry version, publishes with provenance, verifies it with `npm view crawlforge@<version> version`, and only then creates the GitHub release with the same tarball attached.
 
 ## License
 MIT © Roger Chappel
