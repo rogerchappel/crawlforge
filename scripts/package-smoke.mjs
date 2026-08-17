@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 export const documentedReleaseArtifacts = [
@@ -38,7 +40,7 @@ export function missingPackedFiles(packageJson, packedFilePaths) {
 
 async function main() {
   const packageJson = JSON.parse(await readFile("package.json", "utf8"));
-  const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+  const output = execFileSync("npm", ["pack", "--json"], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "inherit"],
   });
@@ -56,6 +58,22 @@ async function main() {
     }
     process.exitCode = 1;
     return;
+  }
+
+  const sandbox = await mkdtemp(join(tmpdir(), "crawlforge-package-smoke-"));
+  const tarball = resolve(packument.filename);
+  try {
+    execFileSync("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball], {
+      cwd: sandbox,
+      stdio: "inherit",
+    });
+    execFileSync(join(sandbox, "node_modules", ".bin", "crawlforge"), ["--help"], {
+      cwd: sandbox,
+      stdio: "inherit",
+    });
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(tarball, { force: true });
   }
 
   console.log(`${packageJson.name} package smoke passed with ${packument.files.length} packed file(s).`);

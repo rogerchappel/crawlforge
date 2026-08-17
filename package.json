@@ -32,7 +32,8 @@
     "test": "npm run build && node --test tests/*.test.js",
     "smoke": "npm run build && bash scripts/smoke.sh",
     "package:smoke": "npm run build && node scripts/package-smoke.mjs",
-    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
+    "release:metadata": "node scripts/release-check.mjs",
+    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke && npm run release:metadata",
     "lint": "npm run check"
   },
   "keywords": [
