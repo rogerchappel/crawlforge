@@ -6,6 +6,11 @@ import { validateReleaseMetadata, validateReleaseWorkflow } from "../scripts/rel
 test("release metadata requires package and lock versions to agree", () => {
   assert.deepEqual(validateReleaseMetadata({ version: "1.2.3" }, { version: "1.2.3", packages: { "": { version: "1.2.3" } } }), []);
   assert.equal(validateReleaseMetadata({ version: "1.2.3" }, { version: "1.2.2", packages: { "": { version: "1.2.3" } } }).length, 1);
+  assert.match(validateReleaseMetadata(
+    { version: "1.2.3" },
+    { version: "1.2.3", packages: { "": { version: "1.2.3" } } },
+    { releasedVersions: ["1.2.3"] },
+  ).join("\n"), /already represented/);
 });
 
 test("release workflow publishes and verifies npm before creating the GitHub release", async () => {

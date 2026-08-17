@@ -2,9 +2,13 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-export function validateReleaseMetadata(pkg, lock) {
-  return [pkg.version, lock.version, lock.packages?.[""]?.version].every((v) => v === pkg.version)
+export function validateReleaseMetadata(pkg, lock, releaseState = { releasedVersions: [] }) {
+  const errors = [pkg.version, lock.version, lock.packages?.[""]?.version].every((v) => v === pkg.version)
     ? [] : [`package.json and package-lock.json versions must all equal ${pkg.version}`];
+  if (releaseState.releasedVersions?.includes(pkg.version)) {
+    errors.push(`v${pkg.version} is already represented in release-state.json`);
+  }
+  return errors;
 }
 
 export function validateReleaseWorkflow(workflow) {
@@ -26,8 +30,9 @@ export function validateReleaseWorkflow(workflow) {
 async function main() {
   const pkg = JSON.parse(await readFile("package.json", "utf8"));
   const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
+  const releaseState = JSON.parse(await readFile("release-state.json", "utf8"));
   const workflow = await readFile(".github/workflows/release.yml", "utf8");
-  const errors = [...validateReleaseMetadata(pkg, lock), ...validateReleaseWorkflow(workflow)];
+  const errors = [...validateReleaseMetadata(pkg, lock, releaseState), ...validateReleaseWorkflow(workflow)];
   errors.forEach((error) => console.error(`- ${error}`));
   if (errors.length) process.exitCode = 1;
   else console.log(`Release metadata and workflow are consistent for v${pkg.version}.`);
