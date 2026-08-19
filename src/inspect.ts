@@ -8,7 +8,7 @@ import { writePage } from "./writers.js";
 import { createManifest, writeManifest } from "./manifest.js";
 
 export async function inspectFixtures(options: InspectOptions) {
-  const bundle = await loadFixtureBundle(options.input);
+  const bundle = await loadFixtureBundle(options.input, options.userAgent);
   const queue = new CrawlQueue();
   const written = [];
   const pagesByUrl = new Map(bundle.pages.map((page) => [normalizeUrl(page.url), page]));

@@ -7,7 +7,7 @@ import { inspectFixtures } from "../dist/index.js";
 
 test("inspect writes outputs and a replayable manifest from fixtures", async () => {
   const output = await mkdtemp(join(tmpdir(), "crawlforge-inspect-"));
-  const result = await inspectFixtures({ input: "fixtures/sample", output, format: "both", userAgent: "test", maxDepth: 1, manifestName: "manifest.json", dryRun: false });
+  const result = await inspectFixtures({ input: "fixtures/sample", output, format: "both", userAgent: "crawlforge-fixture-bot", maxDepth: 1, manifestName: "manifest.json", dryRun: false });
   assert.equal(result.manifest.queued.length, 2);
   assert.equal(result.manifest.policy.crawlDelayMs, 250);
   assert.ok(result.manifestPath);
