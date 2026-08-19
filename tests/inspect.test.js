@@ -39,3 +39,23 @@ test("max-depth controls recursive traversal through fixture pages", async () =>
     ]
   );
 });
+
+test("inspect applies and records the policy for the requested user agent", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-agent-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-agent-output-"));
+  await writeFile(join(input, "root.json"), JSON.stringify({ url: "https://agent.test/" }));
+  await writeFile(join(input, "robots.txt"), [
+    "User-agent: fixture-bot",
+    "Disallow: /",
+    "",
+    "User-agent: requested-bot",
+    "Allow: /"
+  ].join("\n"));
+
+  const result = await inspectFixtures({ input, output, format: "json", userAgent: "requested-bot", maxDepth: 0, manifestName: "manifest.json", dryRun: true });
+
+  assert.equal(result.manifest.userAgent, "requested-bot");
+  assert.equal(result.manifest.policy.userAgent, "requested-bot");
+  assert.equal(result.manifest.queued.length, 1);
+  assert.deepEqual(result.manifest.policy.disallow, []);
+});
