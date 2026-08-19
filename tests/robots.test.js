@@ -57,3 +57,50 @@ test("crawl delays accept finite non-negative values and ignore invalid directiv
     assert.equal(parseRobotsConfig(`Crawl-delay-ms: ${value}`).crawlDelayMs, 1000, value);
   }
 });
+
+test("robots config selects only groups matching the requested user agent", () => {
+  const policy = parseRobotsConfig([
+    "User-agent: other-bot",
+    "Disallow: /",
+    "Crawl-delay: 9",
+    "",
+    "User-agent: requested-bot",
+    "Disallow: /private",
+    "Crawl-delay-ms: 25"
+  ].join("\n"), undefined, "requested-bot/1.0");
+
+  assert.equal(policy.userAgent, "requested-bot/1.0");
+  assert.deepEqual(policy.disallow, ["/private"]);
+  assert.equal(policy.crawlDelayMs, 25);
+  assert.equal(isAllowed("https://example.test/", policy), true);
+});
+
+test("robots config combines equally specific matching groups", () => {
+  const policy = parseRobotsConfig([
+    "User-agent: fixture-bot",
+    "Disallow: /one",
+    "",
+    "User-agent: other-bot",
+    "Disallow: /ignored",
+    "",
+    "User-agent: fixture-bot",
+    "Allow: /two/public",
+    "Disallow: /two"
+  ].join("\n"), undefined, "Fixture-Bot");
+
+  assert.deepEqual(policy.allow, ["/two/public"]);
+  assert.deepEqual(policy.disallow, ["/one", "/two"]);
+});
+
+test("robots config uses wildcard only when no specific group matches", () => {
+  const text = [
+    "User-agent: *",
+    "Disallow: /fallback",
+    "",
+    "User-agent: named-bot",
+    "Disallow: /named"
+  ].join("\n");
+
+  assert.deepEqual(parseRobotsConfig(text, undefined, "unknown-bot").disallow, ["/fallback"]);
+  assert.deepEqual(parseRobotsConfig(text, undefined, "named-bot").disallow, ["/named"]);
+});

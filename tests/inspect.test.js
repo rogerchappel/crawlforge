@@ -7,7 +7,7 @@ import { inspectFixtures } from "../dist/index.js";
 
 test("inspect writes outputs and a replayable manifest from fixtures", async () => {
   const output = await mkdtemp(join(tmpdir(), "crawlforge-inspect-"));
-  const result = await inspectFixtures({ input: "fixtures/sample", output, format: "both", userAgent: "test", maxDepth: 1, manifestName: "manifest.json", dryRun: false });
+  const result = await inspectFixtures({ input: "fixtures/sample", output, format: "both", userAgent: "crawlforge-fixture-bot", maxDepth: 1, manifestName: "manifest.json", dryRun: false });
   assert.equal(result.manifest.queued.length, 2);
   assert.equal(result.manifest.policy.crawlDelayMs, 250);
   assert.ok(result.manifestPath);
@@ -38,4 +38,24 @@ test("max-depth controls recursive traversal through fixture pages", async () =>
       { url: "https://depth.test/two", depth: 2 }
     ]
   );
+});
+
+test("inspect applies and records the policy for the requested user agent", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-agent-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-agent-output-"));
+  await writeFile(join(input, "root.json"), JSON.stringify({ url: "https://agent.test/" }));
+  await writeFile(join(input, "robots.txt"), [
+    "User-agent: fixture-bot",
+    "Disallow: /",
+    "",
+    "User-agent: requested-bot",
+    "Allow: /"
+  ].join("\n"));
+
+  const result = await inspectFixtures({ input, output, format: "json", userAgent: "requested-bot", maxDepth: 0, manifestName: "manifest.json", dryRun: true });
+
+  assert.equal(result.manifest.userAgent, "requested-bot");
+  assert.equal(result.manifest.policy.userAgent, "requested-bot");
+  assert.equal(result.manifest.queued.length, 1);
+  assert.deepEqual(result.manifest.policy.disallow, []);
 });

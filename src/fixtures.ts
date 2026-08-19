@@ -8,7 +8,7 @@ export interface FixtureBundle {
   policy: RobotsPolicy;
 }
 
-export async function loadFixtureBundle(inputDir: string): Promise<FixtureBundle> {
+export async function loadFixtureBundle(inputDir: string, userAgent: string = defaultPolicy.userAgent): Promise<FixtureBundle> {
   const entries = await readdir(inputDir, { withFileTypes: true });
   const pages: CrawlInput[] = [];
   let policy = defaultPolicy;
@@ -17,7 +17,7 @@ export async function loadFixtureBundle(inputDir: string): Promise<FixtureBundle
     if (!entry.isFile()) continue;
     const path = join(inputDir, entry.name);
     if (entry.name === "robots.txt" || entry.name === "robots.crawlforge") {
-      policy = parseRobotsConfig(await readFile(path, "utf8"));
+      policy = parseRobotsConfig(await readFile(path, "utf8"), defaultPolicy, userAgent);
       continue;
     }
     if (!entry.name.endsWith(".json")) continue;
