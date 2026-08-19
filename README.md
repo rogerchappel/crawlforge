@@ -59,6 +59,14 @@ Disallow: /private
 Crawl-delay-ms: 250
 ```
 
+`--user-agent` selects robots groups case-insensitively by product-token match
+(for example, `crawlforge-fixture-bot/1.0` matches the group above). All groups
+with the most-specific matching token are combined. `User-agent: *` is used
+only when no named group matches; if neither a named nor wildcard group
+matches, the default allow policy applies. Rules and crawl delays from
+unrelated groups are ignored. The manifest records both the requested user
+agent and the effective selected policy.
+
 ## Safety notes
 
 - V1 does **not** fetch the network.
@@ -74,6 +82,7 @@ crawlforge inspect <fixture-dir> [options]
 Options:
   --output <dir>       Output directory
   --format <mode>      markdown, json, or both
+  --user-agent <name>  Select the matching robots policy (default: crawlforge-fixture-bot)
   --max-depth <n>      Follow fixture links through n levels (non-negative integer)
   --manifest <file>    Manifest filename
   --dry-run            Build the queue in memory without creating the output path
