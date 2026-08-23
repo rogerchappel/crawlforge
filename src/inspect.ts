@@ -40,6 +40,10 @@ export async function inspectFixtures(options: InspectOptions) {
     for (const href of pageLinks(page)) {
       const resolved = resolveFixtureLink(page.url, href);
       if (!sameOrigin(page.url, resolved)) continue;
+      if (!pagesByUrl.has(resolved)) {
+        queue.skipped.push({ url: resolved, reason: "missing-fixture" });
+        continue;
+      }
       if (!isAllowed(resolved, bundle.policy)) {
         queue.skipped.push({ url: resolved, reason: "robots-disallow" });
         continue;
