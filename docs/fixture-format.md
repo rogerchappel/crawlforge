@@ -2,6 +2,10 @@
 
 crawlforge fixtures are plain JSON files in a directory. Each page fixture needs a `url` and may include `title`, `html`, `text`, `links`, and `discoveredAt`.
 
+Same-origin links are traversed only when a fixture with the resolved URL exists.
+Links without a corresponding fixture are recorded in the manifest with the
+`missing-fixture` skip reason and are never counted as queued pages.
+
 Each fixture must be a JSON object. `url` must be a non-empty absolute URL;
 `title`, `html`, `text`, and `discoveredAt`, when supplied, must be strings;
 and `links`, when supplied, must be an array containing only strings. Invalid
