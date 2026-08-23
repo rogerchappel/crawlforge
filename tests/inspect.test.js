@@ -40,6 +40,32 @@ test("max-depth controls recursive traversal through fixture pages", async () =>
   );
 });
 
+test("records same-origin links without fixtures instead of queueing them", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-missing-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-missing-output-"));
+  await writeFile(join(input, "root.json"), JSON.stringify({
+    url: "https://missing.test/",
+    links: ["/present", "/absent"]
+  }));
+  await writeFile(join(input, "present.json"), JSON.stringify({
+    url: "https://missing.test/present",
+    links: []
+  }));
+
+  const result = await inspectFixtures({ input, output, format: "json", userAgent: "test", maxDepth: 1, manifestName: "manifest.json", dryRun: true });
+
+  assert.deepEqual(
+    result.manifest.queued.map(({ url, depth }) => ({ url, depth })),
+    [
+      { url: "https://missing.test/", depth: 0 },
+      { url: "https://missing.test/present", depth: 1 }
+    ]
+  );
+  assert.deepEqual(result.manifest.skipped, [
+    { url: "https://missing.test/absent", reason: "missing-fixture" }
+  ]);
+});
+
 test("inspect applies and records the policy for the requested user agent", async () => {
   const input = await mkdtemp(join(tmpdir(), "crawlforge-agent-input-"));
   const output = await mkdtemp(join(tmpdir(), "crawlforge-agent-output-"));
