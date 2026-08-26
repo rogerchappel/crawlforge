@@ -107,7 +107,7 @@ bash scripts/validate.sh
 ```
 ## Release readiness
 
-Run the same checks expected before opening or cutting a release:
+Run the same checks expected before opening a PR or cutting a release:
 
 ```sh
 npm run check
@@ -118,18 +118,7 @@ npm run package:smoke
 npm run release:check
 ```
 
-`npm run package:smoke` packs the real artifact, installs it in a temporary project, and executes its CLI. Tagged releases require an npm trusted publisher configured for this repository and workflow environment; no long-lived npm token is used. Before tagging, add the previous version to `release-state.json`; `npm run release:metadata` rejects a package version already recorded there. The workflow verifies that the tag, package, and lockfile versions agree, refuses an existing registry version, publishes with provenance, verifies it with `npm view crawlforge@<version> version`, and only then creates the GitHub release with the same tarball attached.
+`release:check` runs the type-check, test suite, CLI smoke test, package smoke test, and release metadata check. The package smoke test packs the real artifact with `npm pack`, installs the tarball in a temporary project, executes its CLI, and fails if the runtime entry points or documented release artifacts are missing. Tagged releases require an npm trusted publisher configured for this repository and workflow environment; no long-lived npm token is used. Before tagging, add the previous version to `release-state.json`; `npm run release:metadata` rejects a package version already recorded there. The workflow verifies that the tag, package, and lockfile versions agree, refuses an existing registry version, publishes with provenance, verifies it with `npm view crawlforge@<version> version`, and only then creates the GitHub release with the same tarball attached.
 
 ## License
 MIT © Roger Chappel
-
-## Verify
-
-Run local verification before opening a PR or publishing:
-
-```bash
-npm test
-npm run release:check
-```
-
-`release:check` runs type-checking, build, smoke tests, and a dry-run `npm pack` to ensure everything ships cleanly.
