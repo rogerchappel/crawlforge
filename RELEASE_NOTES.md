@@ -10,7 +10,7 @@
 ### Verification
 
 - `npm run release:check`
-- `npm pack --dry-run`
+- `npm run package:smoke`
 
 ### Upgrade Notes
 
