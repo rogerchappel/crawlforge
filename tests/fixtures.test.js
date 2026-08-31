@@ -12,8 +12,16 @@ async function loadFixture(value) {
 }
 
 test("loads fixtures that satisfy the documented page contract", async () => {
-  const page = { url: "https://example.test/", title: "Example", html: "<p>Hello</p>", text: "Hello", links: ["/docs"], discoveredAt: "2026-01-01" };
-  assert.deepEqual((await loadFixture(page)).pages, [page]);
+  for (const url of ["http://example.test/", "https://example.test/"]) {
+    const page = { url, title: "Example", html: "<p>Hello</p>", text: "Hello", links: ["/docs"], discoveredAt: "2026-01-01" };
+    assert.deepEqual((await loadFixture(page)).pages, [page]);
+  }
+});
+
+test("rejects absolute fixture URLs with non-web schemes", async () => {
+  for (const url of ["file:///tmp/local", "data:text/plain,hello", "ftp://example.test/page"]) {
+    await assert.rejects(loadFixture({ url }), /page\.json field url must use http: or https:/);
+  }
 });
 
 test("rejects non-object fixtures and missing or malformed URLs", async () => {
