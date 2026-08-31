@@ -38,10 +38,14 @@ function validateFixture(filename: string, value: unknown): CrawlInput {
   if (typeof fixture.url !== "string" || fixture.url.length === 0) {
     throw new Error(`Fixture ${filename} field url must be a non-empty absolute URL`);
   }
+  let fixtureUrl: URL;
   try {
-    new URL(fixture.url);
+    fixtureUrl = new URL(fixture.url);
   } catch {
     throw new Error(`Fixture ${filename} field url must be a non-empty absolute URL`);
+  }
+  if (fixtureUrl.protocol !== "http:" && fixtureUrl.protocol !== "https:") {
+    throw new Error(`Fixture ${filename} field url must use http: or https:`);
   }
 
   for (const field of ["title", "html", "text", "discoveredAt"] as const) {
