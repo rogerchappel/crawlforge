@@ -50,6 +50,9 @@ A fixture directory contains page JSON files:
 }
 ```
 
+Fixture `url` values must be absolute HTTP or HTTPS URLs. Other schemes such
+as `file:` and `data:` are rejected before any page is queued or output written.
+
 Optional `robots.txt` files support:
 
 ```txt

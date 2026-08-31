@@ -6,7 +6,9 @@ Same-origin links are traversed only when a fixture with the resolved URL exists
 Links without a corresponding fixture are recorded in the manifest with the
 `missing-fixture` skip reason and are never counted as queued pages.
 
-Each fixture must be a JSON object. `url` must be a non-empty absolute URL;
+Each fixture must be a JSON object. `url` must be a non-empty absolute `http:`
+or `https:` URL; local-file, data, and other URL schemes are rejected before
+queueing or writing output.
 `title`, `html`, `text`, and `discoveredAt`, when supplied, must be strings;
 and `links`, when supplied, must be an array containing only strings. Invalid
 fixtures fail before pages are queued or output is written, with an error that
