@@ -1,11 +1,16 @@
 import type { InspectOptions, OutputFormat } from "./types.js";
 
+function isOptionToken(value: string | undefined): boolean {
+  return value?.startsWith("-") ?? false;
+}
+
 export function parseArgs(argv: string[]): { command: "help" } | { command: "inspect"; options: InspectOptions } {
   const [command, ...rest] = argv;
   if (!command || command === "--help" || command === "-h" || command === "help") return { command: "help" };
   if (command !== "inspect") throw new Error(`Unknown command: ${command}`);
   const input = rest.shift();
   if (!input) throw new Error("inspect requires an input fixture directory");
+  if (isOptionToken(input)) throw new Error("inspect requires an input fixture directory before options");
   const options: InspectOptions = {
     input,
     output: "out/crawlforge",
@@ -19,7 +24,8 @@ export function parseArgs(argv: string[]): { command: "help" } | { command: "ins
     const flag = rest[index];
     const value = rest[index + 1];
     if (flag === "--dry-run") { options.dryRun = true; continue; }
-    if (!value) throw new Error(`${flag} requires a value`);
+    const isNegativeNumberForMaxDepth = flag === "--max-depth" && /^-\d/.test(value ?? "");
+    if (!value || (isOptionToken(value) && !isNegativeNumberForMaxDepth)) throw new Error(`${flag} requires a value`);
     if (flag === "--output" || flag === "-o") options.output = value;
     else if (flag === "--format") options.format = value as OutputFormat | "both";
     else if (flag === "--user-agent") options.userAgent = value;
