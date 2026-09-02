@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { CrawlInput, OutputFormat } from "./types.js";
-import { stableId } from "./url.js";
+import { normalizeUrl, stableId } from "./url.js";
 import { pageText } from "./extract.js";
 
 export interface WriteResult {
@@ -17,7 +17,7 @@ export function markdownForPage(page: CrawlInput): string {
 
 export async function writePage(outputDir: string, page: CrawlInput, format: OutputFormat | "both"): Promise<WriteResult> {
   await mkdir(outputDir, { recursive: true });
-  const base = stableId(page.url);
+  const base = stableId(normalizeUrl(page.url));
   const result: WriteResult = { url: page.url };
   if (format === "markdown" || format === "both") {
     result.markdown = join(outputDir, `${base}.md`);

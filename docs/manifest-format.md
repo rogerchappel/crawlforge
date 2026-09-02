@@ -14,3 +14,7 @@ Key fields:
 - `policy`: robots/politeness policy applied during the run.
 
 The manifest is intended to be diffable and safe to hand to downstream agents.
+Each written `.md` or `.json` basename matches its queued item's stable `id`.
+Manifest names may include subdirectories (for example,
+`--manifest reports/run/manifest.json`); crawlforge creates those parent
+directories beneath the output directory before writing the manifest.

@@ -25,6 +25,13 @@ identifies the fixture filename and invalid field.
 
 When `links` are omitted, crawlforge extracts `href` values from `html`. Relative links are resolved against the page URL and normalized before queueing.
 
+Artifact basenames are the stable ID of the normalized fixture URL shown in the
+manifest queue item. URL variations such as host casing, default ports,
+fragments, trailing slashes, and query ordering therefore map to the same queue
+item and artifact basename. When multiple fixtures normalize to the same URL,
+the deterministic fixture ordering selects one page and records the others as
+`duplicate` skips; they never create ambiguous artifacts.
+
 Add `robots.txt` to model politeness:
 
 ```txt
