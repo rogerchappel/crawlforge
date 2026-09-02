@@ -1,5 +1,5 @@
-import { writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import type { CrawlManifest, InspectOptions, QueueItem, RobotsPolicy } from "./types.js";
 import type { WriteResult } from "./writers.js";
 
@@ -27,6 +27,7 @@ export function createManifest(args: {
 
 export async function writeManifest(outputDir: string, name: string, manifest: CrawlManifest): Promise<string> {
   const path = join(outputDir, name);
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   return path;
 }
