@@ -16,6 +16,30 @@ test("inspect writes outputs and a replayable manifest from fixtures", async () 
   assert.equal(manifest.written.length, 2);
 });
 
+test("artifact names match normalized queue IDs and nested manifests are created", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-normalized-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-normalized-output-"));
+  await writeFile(join(input, "first.json"), JSON.stringify({
+    url: "HTTPS://EXAMPLE.TEST:443/docs/?b=2&a=1#top",
+    text: "first"
+  }));
+  await writeFile(join(input, "second.json"), JSON.stringify({
+    url: "https://example.test/docs?a=1&b=2",
+    text: "second"
+  }));
+
+  const result = await inspectFixtures({ input, output, format: "both", userAgent: "test", maxDepth: 0, manifestName: "nested/manifest.json", dryRun: false });
+
+  assert.equal(result.manifest.queued.length, 1);
+  assert.equal(result.manifest.written.length, 1);
+  assert.equal(result.manifest.skipped.length, 1);
+  assert.equal(result.manifest.skipped[0]?.reason, "duplicate");
+  assert.equal(result.manifest.written[0]?.markdown, join(output, `${result.manifest.queued[0]?.id}.md`));
+  assert.equal(result.manifest.written[0]?.json, join(output, `${result.manifest.queued[0]?.id}.json`));
+  assert.equal(result.manifestPath, join(output, "nested/manifest.json"));
+  assert.equal(JSON.parse(await readFile(result.manifestPath, "utf8")).queued[0].id, result.manifest.queued[0]?.id);
+});
+
 test("max-depth controls recursive traversal through fixture pages", async () => {
   const input = await mkdtemp(join(tmpdir(), "crawlforge-depth-input-"));
   const output = await mkdtemp(join(tmpdir(), "crawlforge-depth-output-"));
