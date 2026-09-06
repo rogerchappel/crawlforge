@@ -91,9 +91,11 @@ Options:
   --dry-run            Build the queue in memory without creating the output path
 ```
 
-The inspector starts from fixture pages that are not linked by another fixture page,
-then follows same-origin links through the requested depth. A value of `0` includes
-only those roots; linked fixture pages are expanded at depths `1`, `2`, and so on.
+The inspector starts from fixture pages that are not linked by another permitted
+fixture page, then follows same-origin links through the requested depth. It also
+seeds one deterministic page from every otherwise-unreachable component, so a
+disconnected cycle is not silently omitted. A value of `0` includes only each
+component seed; linked fixture pages are expanded at depths `1`, `2`, and so on.
 
 ## Attribution
 

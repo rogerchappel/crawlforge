@@ -5,6 +5,10 @@ crawlforge fixtures are plain JSON files in a directory. Each page fixture needs
 Same-origin links are traversed only when a fixture with the resolved URL exists.
 Links without a corresponding fixture are recorded in the manifest with the
 `missing-fixture` skip reason and are never counted as queued pages.
+Traversal seeds every permitted fixture page with no permitted incoming link.
+After those roots, it deterministically seeds one page from each remaining
+unreachable component. This ensures disconnected cycles are inspected while
+queue deduplication still visits each fixture at most once.
 
 Each fixture must be a JSON object. `url` must be a non-empty absolute `http:`
 or `https:` URL; local-file, data, and other URL schemes are rejected before
