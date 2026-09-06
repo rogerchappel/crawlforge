@@ -12,21 +12,49 @@ export async function inspectFixtures(options: InspectOptions) {
   const queue = new CrawlQueue();
   const written = [];
   const pagesByUrl = new Map(bundle.pages.map((page) => [normalizeUrl(page.url), page]));
+  const allowedPages = bundle.pages.filter((page) => isAllowed(page.url, bundle.policy));
   const linkedFixtureUrls = new Set<string>();
 
-  for (const page of bundle.pages) {
+  for (const page of allowedPages) {
     for (const href of pageLinks(page)) {
       const resolved = resolveFixtureLink(page.url, href);
-      if (sameOrigin(page.url, resolved) && pagesByUrl.has(resolved)) linkedFixtureUrls.add(resolved);
+      const linkedPage = pagesByUrl.get(resolved);
+      if (sameOrigin(page.url, resolved) && linkedPage && isAllowed(linkedPage.url, bundle.policy)) linkedFixtureUrls.add(resolved);
     }
   }
 
-  const roots = bundle.pages.filter((page) => !linkedFixtureUrls.has(normalizeUrl(page.url)));
-  for (const page of roots.length > 0 ? roots : bundle.pages.slice(0, 1)) {
-    if (!isAllowed(page.url, bundle.policy)) {
-      queue.skipped.push({ url: page.url, reason: "robots-disallow" });
-      continue;
+  for (const page of bundle.pages) {
+    if (!isAllowed(page.url, bundle.policy)) queue.skipped.push({ url: page.url, reason: "robots-disallow" });
+  }
+
+  const seeds = allowedPages.filter((page) => !linkedFixtureUrls.has(normalizeUrl(page.url)));
+  const reachable = new Set<string>();
+  const markReachable = (seedUrl: string) => {
+    const pending = [seedUrl];
+    while (pending.length > 0) {
+      const url = pending.shift()!;
+      if (reachable.has(url)) continue;
+      reachable.add(url);
+      const page = pagesByUrl.get(url);
+      if (!page) continue;
+      for (const href of pageLinks(page)) {
+        const resolved = resolveFixtureLink(page.url, href);
+        const linkedPage = pagesByUrl.get(resolved);
+        if (sameOrigin(page.url, resolved) && linkedPage && isAllowed(linkedPage.url, bundle.policy)) pending.push(resolved);
+      }
     }
+  };
+
+  for (const page of seeds) markReachable(normalizeUrl(page.url));
+  for (const page of allowedPages) {
+    const normalizedUrl = normalizeUrl(page.url);
+    if (!reachable.has(normalizedUrl)) {
+      seeds.push(page);
+      markReachable(normalizedUrl);
+    }
+  }
+
+  for (const page of seeds) {
     queue.enqueue(page.url, 0);
   }
 

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Nothing yet.
+- Inspect every permitted fixture graph component, including disconnected cycles.
 
 ## 0.2.0 - 2026-08-17
 
