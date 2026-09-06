@@ -64,6 +64,52 @@ test("max-depth controls recursive traversal through fixture pages", async () =>
   );
 });
 
+test("seeds a disconnected cyclic fixture component", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-cycle-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-cycle-output-"));
+  const pages = [
+    { name: "root.json", url: "https://cycle.test/", links: [] },
+    { name: "a.json", url: "https://cycle.test/a", links: ["/b"] },
+    { name: "b.json", url: "https://cycle.test/b", links: ["/a"] }
+  ];
+  await Promise.all(pages.map(({ name, ...page }) => writeFile(join(input, name), JSON.stringify(page))));
+
+  const result = await inspectFixtures({ input, output, format: "json", userAgent: "test", maxDepth: 10, manifestName: "manifest.json", dryRun: false });
+
+  assert.deepEqual(result.manifest.queued.map(({ url }) => url), [
+    "https://cycle.test/",
+    "https://cycle.test/a",
+    "https://cycle.test/b"
+  ]);
+  assert.equal(result.manifest.written.length, 3);
+  assert.equal(new Set(result.manifest.queued.map(({ normalizedUrl }) => normalizedUrl)).size, 3);
+});
+
+test("seeds an all-cyclic fixture set deterministically", async () => {
+  const input = await mkdtemp(join(tmpdir(), "crawlforge-all-cycle-input-"));
+  const output = await mkdtemp(join(tmpdir(), "crawlforge-all-cycle-output-"));
+  const pages = [
+    { name: "c.json", url: "https://cycle.test/c", links: ["/a"] },
+    { name: "a.json", url: "https://cycle.test/a", links: ["/b"] },
+    { name: "b.json", url: "https://cycle.test/b", links: ["/c"] }
+  ];
+  await Promise.all(pages.map(({ name, ...page }) => writeFile(join(input, name), JSON.stringify(page))));
+
+  const result = await inspectFixtures({ input, output, format: "json", userAgent: "test", maxDepth: 10, manifestName: "manifest.json", dryRun: true });
+
+  assert.deepEqual(
+    result.manifest.queued.map(({ url, depth }) => ({ url, depth })),
+    [
+      { url: "https://cycle.test/a", depth: 0 },
+      { url: "https://cycle.test/b", depth: 1 },
+      { url: "https://cycle.test/c", depth: 2 }
+    ]
+  );
+  assert.deepEqual(result.manifest.skipped, [
+    { url: "https://cycle.test/a", reason: "duplicate" }
+  ]);
+});
+
 test("records same-origin links without fixtures instead of queueing them", async () => {
   const input = await mkdtemp(join(tmpdir(), "crawlforge-missing-input-"));
   const output = await mkdtemp(join(tmpdir(), "crawlforge-missing-output-"));
