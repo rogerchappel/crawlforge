@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { CrawlInput, RobotsPolicy } from "./types.js";
 import { defaultPolicy, parseRobotsConfig } from "./robots.js";
+import { normalizeUrl, resolveFixtureLink } from "./url.js";
 
 export interface FixtureBundle {
   pages: CrawlInput[];
@@ -11,9 +12,10 @@ export interface FixtureBundle {
 export async function loadFixtureBundle(inputDir: string, userAgent: string = defaultPolicy.userAgent): Promise<FixtureBundle> {
   const entries = await readdir(inputDir, { withFileTypes: true });
   const pages: CrawlInput[] = [];
+  const pageSources = new Map<string, { filename: string; url: string }>();
   let policy = defaultPolicy;
 
-  for (const entry of entries) {
+  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     if (!entry.isFile()) continue;
     const path = join(inputDir, entry.name);
     if (entry.name === "robots.txt" || entry.name === "robots.crawlforge") {
@@ -22,7 +24,16 @@ export async function loadFixtureBundle(inputDir: string, userAgent: string = de
     }
     if (!entry.name.endsWith(".json")) continue;
     const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
-    pages.push(validateFixture(entry.name, parsed));
+    const page = validateFixture(entry.name, parsed);
+    const normalizedUrl = normalizeUrl(page.url);
+    const previous = pageSources.get(normalizedUrl);
+    if (previous) {
+      throw new Error(
+        `Fixture ${entry.name} field url "${page.url}" conflicts with fixture ${previous.filename} field url "${previous.url}" after URL normalization`
+      );
+    }
+    pageSources.set(normalizedUrl, { filename: entry.name, url: page.url });
+    pages.push(page);
   }
 
   pages.sort((a, b) => scoreUrl(a.url) - scoreUrl(b.url) || a.url.localeCompare(b.url));
@@ -61,6 +72,13 @@ function validateFixture(filename: string, value: unknown): CrawlInput {
     if (invalidIndex !== -1) {
       throw new Error(`Fixture ${filename} field links[${invalidIndex}] must be a string`);
     }
+    fixture.links.forEach((link, index) => {
+      try {
+        resolveFixtureLink(fixture.url as string, link as string);
+      } catch {
+        throw new Error(`Fixture ${filename} field links[${index}] must be a resolvable URL`);
+      }
+    });
   }
 
   return fixture as unknown as CrawlInput;
