@@ -14,9 +14,12 @@ Each fixture must be a JSON object. `url` must be a non-empty absolute `http:`
 or `https:` URL; local-file, data, and other URL schemes are rejected before
 queueing or writing output.
 `title`, `html`, `text`, and `discoveredAt`, when supplied, must be strings;
-and `links`, when supplied, must be an array containing only strings. Invalid
-fixtures fail before pages are queued or output is written, with an error that
-identifies the fixture filename and invalid field.
+and `links`, when supplied, must be an array containing only strings that resolve
+against the fixture page URL. Page URLs must also be unique after normalization;
+equivalent host casing, default ports, fragments, query ordering, and trailing
+slashes cannot identify separate fixtures. Invalid fixtures fail before pages are
+queued or output is written. Errors identify the fixture filename and invalid
+field, and URL conflicts identify both fixture files and original URLs.
 
 ```json
 {
