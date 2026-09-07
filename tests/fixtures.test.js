@@ -37,3 +37,23 @@ test("rejects invalid optional fixture fields with field-specific errors", async
   await assert.rejects(loadFixture({ url: "https://example.test/", links: "not-an-array" }), /page\.json field links must be an array of strings/);
   await assert.rejects(loadFixture({ url: "https://example.test/", links: ["/", 42] }), /page\.json field links\[1\] must be a string/);
 });
+
+test("rejects links that cannot be resolved against their fixture URL", async () => {
+  for (const link of ["http://[", "https://example.test:invalid/path", "//["]) {
+    await assert.rejects(
+      loadFixture({ url: "https://example.test/docs", links: ["/valid", link] }),
+      /Fixture page\.json field links\[1\] must be a resolvable URL/
+    );
+  }
+});
+
+test("rejects normalization-equivalent fixture page URLs deterministically", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "crawlforge-fixture-"));
+  await writeFile(join(directory, "b.json"), JSON.stringify({ url: "https://example.test:443/docs" }));
+  await writeFile(join(directory, "a.json"), JSON.stringify({ url: "https://EXAMPLE.test/docs/" }));
+
+  await assert.rejects(
+    loadFixtureBundle(directory),
+    /Fixture b\.json field url "https:\/\/example\.test:443\/docs" conflicts with fixture a\.json field url "https:\/\/EXAMPLE\.test\/docs\/" after URL normalization/
+  );
+});
