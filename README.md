@@ -50,6 +50,11 @@ A fixture directory contains page JSON files:
 }
 ```
 
+Fixture page URLs must be unique after normalization (including host casing,
+default ports, fragments, query ordering, and trailing slashes). Every explicit
+`links` entry must resolve against its page URL. Invalid or conflicting fixtures
+fail with both the fixture filename and field before inspection writes output.
+
 Fixture `url` values must be absolute HTTP or HTTPS URLs. Other schemes such
 as `file:` and `data:` are rejected before any page is queued or output written.
 

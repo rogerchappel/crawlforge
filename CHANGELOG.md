@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Validate explicit fixture links during loading and reject page URLs that
+  collide after normalization instead of silently discarding a fixture.
+
 - Inspect every permitted fixture graph component, including disconnected cycles.
 
 ## 0.2.0 - 2026-08-17
