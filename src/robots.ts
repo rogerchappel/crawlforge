@@ -43,6 +43,9 @@ export function parseRobotsConfig(
     if (key === "user-agent") {
       if (group && hasDirectives) finishGroup();
       if (!group) group = { agents: [], allow: [], disallow: [] };
+      else if (group.agents.includes("*") && group.allow.length === 0 && group.disallow.length === 0 && group.crawlDelayMs === undefined) {
+        group.agents = [];
+      }
       group.agents.push(value);
       continue;
     }
