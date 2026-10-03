@@ -92,6 +92,22 @@ test("robots config combines equally specific matching groups", () => {
   assert.deepEqual(policy.disallow, ["/one", "/two"]);
 });
 
+test("consecutive User-agent lines share one group and apply its rules to each agent", () => {
+  const text = [
+    "User-agent: alpha-bot",
+    "User-agent: beta-bot",
+    "Disallow: /shared",
+    "",
+    "User-agent: gamma-bot",
+    "Disallow: /gamma"
+  ].join("\n");
+
+  for (const agent of ["alpha-bot", "beta-bot"]) {
+    assert.deepEqual(parseRobotsConfig(text, undefined, agent).disallow, ["/shared"]);
+  }
+  assert.deepEqual(parseRobotsConfig(text, undefined, "gamma-bot").disallow, ["/gamma"]);
+});
+
 test("robots config uses wildcard only when no specific group matches", () => {
   const text = [
     "User-agent: *",
