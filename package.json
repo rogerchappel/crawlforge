@@ -29,6 +29,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
+    "test:source": "npm run build && node --test tests/*.test.js && rm -rf dist",
     "test": "npm run build && node --test tests/*.test.js",
     "smoke": "npm run build && bash scripts/smoke.sh",
     "package:smoke": "npm run build && node scripts/package-smoke.mjs",
