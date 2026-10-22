@@ -11,7 +11,7 @@ export interface WriteResult {
 }
 
 export function markdownForPage(page: CrawlInput): string {
-  const title = page.title ?? page.url;
+  const title = (page.title ?? page.url).replace(/[\r\n]+/g, " ").replace(/([\\`*_{}\[\]()#+.!|>~-])/g, "\\$1");
   return [`# ${title}`, "", `Source: ${page.url}`, "", pageText(page), ""].join("\n");
 }
 
